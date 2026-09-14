@@ -1,0 +1,22 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "Electronics",
+      "image": "https://images.unsplash.com/photo-1510557880182-3eecf17c0b9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80%22",
+      "color": "#FF5733"
+    },
+    {
+      "id": 2,
+      "name": "Clothing",
+      "image": "https://images.unsplash.com/photo-1522199755839-a2bac40b5f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80%22",
+      "color": "#33FF57"
+    },
+    {
+      "id": 3,
+      "name": "Books",
+      "image": "https://images.unsplash.com/photo-1544947950-f29da7ba23d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80%22",
+      "color": "#717171"
+    }
+  ]
+}

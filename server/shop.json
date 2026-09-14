@@ -1,0 +1,223 @@
+{
+  "categories": [
+    {
+      "id": "cat_fruits",
+      "name": "Фрукти",
+      "icon": "fruit-cherries",
+      "bgColor": "#FFF3E0",
+      "iconColor": "#E65100"
+    },
+    {
+      "id": "cat_vegetables",
+      "name": "Овочі",
+      "icon": "carrot",
+      "bgColor": "#E8F5E9",
+      "iconColor": "#2E7D32"
+    },
+    {
+      "id": "cat_dairy",
+      "name": "Молочка",
+      "icon": "cheese",
+      "bgColor": "#FFFDE7",
+      "iconColor": "#FBC02D"
+    },
+    {
+      "id": "cat_bakery",
+      "name": "Випічка",
+      "icon": "bread-slice",
+      "bgColor": "#EFEBE9",
+      "iconColor": "#6D4C41"
+    },
+    {
+      "id": "cat_drinks",
+      "name": "Напої",
+      "icon": "bottle-soda-classic",
+      "bgColor": "#E1F5FE",
+      "iconColor": "#0288D1"
+    }
+  ],
+  "products": [
+    {
+      "id": "p1",
+      "categoryId": "cat_fruits",
+      "title": "Банани еквадорські",
+      "price": 68,
+      "unit": "грн/кг",
+      "rating": 4.9,
+      "reviews": 128,
+      "image": "https://cdn-icons-png.flaticon.com/512/3137/3137044.png"
+    },
+    {
+      "id": "p2",
+      "categoryId": "cat_fruits",
+      "title": "Яблука Гала",
+      "price": 35,
+      "unit": "грн/кг",
+      "rating": 4.7,
+      "reviews": 85,
+      "image": "https://cdn-icons-png.flaticon.com/512/415/415733.png"
+    },
+    {
+      "id": "p3",
+      "categoryId": "cat_fruits",
+      "title": "Полуниця свіжа",
+      "price": 120,
+      "unit": "грн/500г",
+      "rating": 4.9,
+      "reviews": 210,
+      "image": "https://cdn-icons-png.flaticon.com/512/590/590685.png"
+    },
+    {
+      "id": "p4",
+      "categoryId": "cat_fruits",
+      "title": "Апельсини Іспанія",
+      "price": 75,
+      "unit": "грн/кг",
+      "rating": 4.6,
+      "reviews": 94,
+      "image": "https://cdn-icons-png.flaticon.com/512/1728/1728791.png"
+    },
+    {
+      "id": "p5",
+      "categoryId": "cat_vegetables",
+      "title": "Томати Черрі",
+      "price": 85,
+      "unit": "грн/уп",
+      "rating": 4.8,
+      "reviews": 64,
+      "image": "https://cdn-icons-png.flaticon.com/512/1202/1202125.png"
+    },
+    {
+      "id": "p6",
+      "categoryId": "cat_vegetables",
+      "title": "Авокадо Хасс",
+      "price": 55,
+      "unit": "грн/шт",
+      "rating": 4.6,
+      "reviews": 42,
+      "image": "https://cdn-icons-png.flaticon.com/512/1147/1147803.png"
+    },
+    {
+      "id": "p7",
+      "categoryId": "cat_vegetables",
+      "title": "Огірки тепличні",
+      "price": 60,
+      "unit": "грн/кг",
+      "rating": 4.5,
+      "reviews": 51,
+      "image": "https://cdn-icons-png.flaticon.com/512/2347/2347000.png"
+    },
+    {
+      "id": "p8",
+      "categoryId": "cat_vegetables",
+      "title": "Брокколі свіжа",
+      "price": 90,
+      "unit": "грн/кг",
+      "rating": 4.7,
+      "reviews": 38,
+      "image": "https://cdn-icons-png.flaticon.com/512/2346/2346988.png"
+    },
+    {
+      "id": "p9",
+      "categoryId": "cat_dairy",
+      "title": "Молоко 2.5%",
+      "price": 42,
+      "unit": "грн/шт",
+      "rating": 4.8,
+      "reviews": 95,
+      "image": "https://cdn-icons-png.flaticon.com/512/2983/2983788.png"
+    },
+    {
+      "id": "p10",
+      "categoryId": "cat_dairy",
+      "title": "Сир Пармезан",
+      "price": 145,
+      "unit": "грн/200г",
+      "rating": 4.9,
+      "reviews": 53,
+      "image": "https://cdn-icons-png.flaticon.com/512/2203/2203182.png"
+    },
+    {
+      "id": "p11",
+      "categoryId": "cat_dairy",
+      "title": "Йогурт грецький",
+      "price": 38,
+      "unit": "грн/шт",
+      "rating": 4.7,
+      "reviews": 72,
+      "image": "https://cdn-icons-png.flaticon.com/512/2312/2312384.png"
+    },
+    {
+      "id": "p12",
+      "categoryId": "cat_dairy",
+      "title": "Масло вершкове 82%",
+      "price": 88,
+      "unit": "грн/200г",
+      "rating": 4.9,
+      "reviews": 110,
+      "image": "https://cdn-icons-png.flaticon.com/512/805/805370.png"
+    },
+    {
+      "id": "p13",
+      "categoryId": "cat_bakery",
+      "title": "Багет французький",
+      "price": 28,
+      "unit": "грн/шт",
+      "rating": 4.7,
+      "reviews": 31,
+      "image": "https://cdn-icons-png.flaticon.com/512/992/992747.png"
+    },
+    {
+      "id": "p14",
+      "categoryId": "cat_bakery",
+      "title": "Круасан з шоколадом",
+      "price": 35,
+      "unit": "грн/шт",
+      "rating": 4.9,
+      "reviews": 142,
+      "image": "https://cdn-icons-png.flaticon.com/512/3014/3014522.png"
+    },
+    {
+      "id": "p15",
+      "categoryId": "cat_bakery",
+      "title": "Хліб крафтовий",
+      "price": 45,
+      "unit": "грн/шт",
+      "rating": 4.8,
+      "reviews": 60,
+      "image": "https://cdn-icons-png.flaticon.com/512/3014/3014288.png"
+    },
+    {
+      "id": "p16",
+      "categoryId": "cat_drinks",
+      "title": "Сік апельсиновий",
+      "price": 62,
+      "unit": "грн/л",
+      "rating": 4.5,
+      "reviews": 77,
+      "image": "https://cdn-icons-png.flaticon.com/512/2405/2405479.png"
+    },
+    {
+      "id": "p17",
+      "categoryId": "cat_drinks",
+      "title": "Вода мінеральна",
+      "price": 22,
+      "unit": "грн/1.5л",
+      "rating": 4.8,
+      "reviews": 180,
+      "image": "https://cdn-icons-png.flaticon.com/512/3100/3100553.png"
+    },
+    {
+      "id": "p18",
+      "categoryId": "cat_drinks",
+      "title": "Холодний чай Лимон",
+      "price": 38,
+      "unit": "грн/0.5л",
+      "rating": 4.4,
+      "reviews": 49,
+      "image": "https://cdn-icons-png.flaticon.com/512/2935/2935307.png"
+    }
+  ]
+}
+ 
+ 
