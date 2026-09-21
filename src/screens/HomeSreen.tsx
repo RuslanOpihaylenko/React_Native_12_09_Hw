@@ -11,6 +11,7 @@ import {
   StatusBar,
   Switch,
   Pressable,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -39,6 +40,16 @@ interface Product {
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
+  const isSmallScreen = width < 600;
+  const isMediumScreen = width >= 600 && width < 1000;
+  const isLargeScreen = width >= 1000;
+
+  const cartBackground =
+    Platform.OS === "ios"
+      ? "#F7FAF7"
+      : Platform.OS === "android"
+       ? "#F1F8F3"
+       : "#F5F5F5";
   const productCardWidth = 
     width < 800 
       ? "48%"
@@ -60,6 +71,20 @@ export default function HomeScreen() {
   const [openPage, setOpenPage] = useState<boolean>(false);
   const [openBasket, setOpenBasket] = useState<boolean>(false);
   const [cartQuantities, setCartQuantities] = useState<Record<string, number>>({});
+
+  const cartProducts = useMemo(() => {
+  return products.filter(
+    (product) => (cartQuantities[product.id] || 0) > 0
+  );
+}, [products, cartQuantities]);
+
+const cartTotal = useMemo(() => {
+  return cartProducts.reduce((total, product) => {
+    const quantity = cartQuantities[product.id] || 0;
+    return total + product.price * quantity;
+  }, 0);
+}, [cartProducts, cartQuantities]);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -518,10 +543,13 @@ const updateCart = async (productId: string, quantityChange: number) => {
                     </Text>
                   </View>
 
-                  <TouchableOpacity style={styles.addButton}>
-                    <Ionicons name="cart-outline" size={16} color="#FFFFFF" />
-                    <Text style={styles.addButtonText}>Додати</Text>
-                  </TouchableOpacity>
+                  <TouchableOpacity
+  style={styles.addButton}
+  onPress={() => updateCart(product.id, 1)}
+>
+  <Ionicons name="cart-outline" size={16} color="#FFFFFF" />
+  <Text style={styles.addButtonText}>Додати</Text>
+</TouchableOpacity>
                 </View>
               </View>
             ))}
@@ -751,18 +779,17 @@ const updateCart = async (productId: string, quantityChange: number) => {
 
                   <TouchableOpacity
                     style={styles.addButton}
-                    onPress={() => handleOnClickMore(product.id)}
+                    onPress={() => updateCart(product.id, 1)}
                   >
-                    <Ionicons
-                      name="cart-outline"
-                      size={16}
-                      color="#FFFFFF"
-                    />
-
-                    <Text style={styles.addButtonText}>
-                      Додати
-                    </Text>
-                  </TouchableOpacity>
+                  <Ionicons
+                    name="cart-outline"
+                    size={16}
+                    color="#FFFFFF"
+                  />
+                  <Text style={styles.addButtonText}>
+                    Додати
+                  </Text>
+                </TouchableOpacity>
 
                 </View>
 
@@ -779,82 +806,302 @@ const updateCart = async (productId: string, quantityChange: number) => {
   );
 }
   else {
-    return(
-      <View>
-        <TouchableOpacity style={styles.Favouritebackbtn} onPress={()=>setOpenBasket(false)}><Text>←</Text></TouchableOpacity>
-        {filteredProducts.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Ionicons
-              name="basket-outline"
-              size={48}
-              color={theme.textSecondary}
-            />
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-              Товарів у цій категорії поки немає
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.productsGrid}>
-            {filteredProducts.map((product) => (
-              <View
-                key={product.id}
-                style={[
-                  styles.productCard,
-                  { width: productCardWidth, backgroundColor: theme.cardBg, borderColor: theme.border },
-                ]}
-              >
-                <TouchableOpacity style={styles.favoriteButton} onPress={()=>setFavoriteBtn((prev)=>({
-                    ...prev,
-                    [product.id]: !prev[product.id],
-                }))}>
-                  <Ionicons
-                    name={favoriteBtn[product.id] ? "heart" : "heart-outline"}
-                    size={20}
-                    color={favoriteBtn[product.id] ? "#E53935" : "#BDBDBD"}
-                  />
-                </TouchableOpacity>
+  return (
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: cartBackground,
+        },
+      ]}
+    >
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={cartBackground}
+      />
 
-                <Image
-                  source={{ uri: product.image }}
-                  style={styles.productImage}
-                  resizeMode="contain"
+      <View style={styles.cartHeader}>
+
+        <TouchableOpacity
+          style={styles.cartBackButton}
+          onPress={() => setOpenBasket(false)}
+        >
+          <Ionicons
+            name="arrow-back"
+            size={22}
+            color="#FFFFFF"
+          />
+        </TouchableOpacity>
+
+        <Text style={styles.cartHeaderTitle}>
+          Кошик
+        </Text>
+
+        <View style={{ width: 42 }} />
+
+      </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.cartContainer,
+          isSmallScreen && styles.cartContainerMobile,
+        ]}
+      >
+
+        {/* Основной адаптивный блок */}
+        <View
+          style={[
+            styles.cartLayout,
+            isSmallScreen && styles.cartLayoutMobile,
+          ]}
+        >
+
+          <View
+            style={[
+              styles.cartProductsSection,
+              isSmallScreen && styles.cartProductsSectionMobile,
+            ]}
+          >
+
+            <View style={styles.cartSectionHeader}>
+              <Text style={styles.cartSectionTitle}>
+                Ваш Кошик
+              </Text>
+
+              <Text style={styles.cartProductCount}>
+                ({cartProducts.length})
+              </Text>
+            </View>
+
+            {cartProducts.length === 0 ? (
+
+              <View style={styles.cartEmpty}>
+
+                <Ionicons
+                  name="cart-outline"
+                  size={60}
+                  color="#9E9E9E"
                 />
 
-                <Text
-                  style={[styles.productTitle, { color: theme.textPrimary }]}
-                  numberOfLines={1}
-                >
-                  {product.title}
+                <Text style={styles.cartEmptyTitle}>
+                  Кошик порожній
                 </Text>
-                <View style={styles.productFooter}>
-                <Text
-                  style={[styles.productPrice, { color: theme.textPrimary }]}
-                >
-                  {product.price}{" "}
-                  <Text
-                    style={[styles.productUnit, { color: theme.textSecondary }]}
-                  >
-                    {product.unit}
-                  </Text>
+
+                <Text style={styles.cartEmptyText}>
+                  Додайте товари, щоб оформити замовлення
                 </Text>
-                <TouchableOpacity
-                  onPress={() => handleResetCounter(product.id)}
-                  style={styles.resetButton}>
-                    <Ionicons name="refresh-outline" size={18} color="#D32F2F" />
-                </TouchableOpacity>
-                <View style={styles.counter}>
-                  <TouchableOpacity   onPress={() => updateCart(product.id, -1)} style={styles.less}><Text style={{color: "#717171", fontSize: 20}}>-</Text></TouchableOpacity>
-                  <Text style={styles.value}>{cartQuantities[product.id] || 0}</Text>
-                  <TouchableOpacity onPress={() => updateCart(product.id, 1)} style={styles.more}><Text style={{color: "green", fontSize: 20}}>+</Text></TouchableOpacity>
-                </View>
-                </View>
+
               </View>
-            ))}
+
+            ) : (
+
+              <View>
+
+                {cartProducts.map((product) => {
+
+                  const quantity =
+                    cartQuantities[product.id] || 0;
+
+                  return (
+                    <View
+                      key={product.id}
+                      style={styles.cartProduct}
+                    >
+
+                      <View style={styles.cartImageContainer}>
+                        <Image
+                          source={{
+                            uri: product.image,
+                          }}
+                          style={styles.cartProductImage}
+                          resizeMode="contain"
+                        />
+                      </View>
+
+                      <View style={styles.cartProductInfo}>
+
+                        <Text
+                          style={styles.cartProductTitle}
+                          numberOfLines={1}
+                        >
+                          {product.title}
+                        </Text>
+
+                        <Text style={styles.cartProductPrice}>
+                          {product.price}{" "}
+                          <Text style={styles.cartProductUnit}>
+                            {product.unit}
+                          </Text>
+                        </Text>
+
+                      </View>
+
+                      <View style={styles.cartCounter}>
+
+                        <TouchableOpacity
+                          style={styles.cartCounterButton}
+                          onPress={() =>
+                            updateCart(product.id, -1)
+                          }
+                        >
+                          <Text style={styles.cartMinus}>
+                            −
+                          </Text>
+                        </TouchableOpacity>
+
+                        <Text style={styles.cartQuantity}>
+                          {quantity}
+                        </Text>
+
+                        <TouchableOpacity
+                          style={styles.cartCounterButton}
+                          onPress={() =>
+                            updateCart(product.id, 1)
+                          }
+                        >
+                          <Text style={styles.cartPlus}>
+                            +
+                          </Text>
+                        </TouchableOpacity>
+
+                      </View>
+
+                      <Text style={styles.cartItemTotal}>
+                        {product.price * quantity} грн
+                      </Text>
+
+                      <TouchableOpacity
+                        style={styles.cartDeleteButton}
+                        onPress={() =>
+                          handleResetCounter(product.id)
+                        }
+                      >
+                        <Ionicons
+                          name="trash-outline"
+                          size={19}
+                          color="#D32F2F"
+                        />
+                      </TouchableOpacity>
+
+                    </View>
+                  );
+                })}
+
+              </View>
+            )}
+
           </View>
-        )}
-      </View>
-    );
-  }
+
+
+
+          <View
+            style={[
+              styles.cartSummary,
+              isSmallScreen && styles.cartSummaryMobile,
+            ]}
+          >
+
+            <Text style={styles.summaryTitle}>
+              Промокод
+            </Text>
+
+            <View style={styles.promoContainer}>
+
+              <TextInput
+                placeholder="Промокод"
+                placeholderTextColor="#9E9E9E"
+                style={styles.promoInput}
+              />
+
+              <TouchableOpacity
+                style={styles.promoButton}
+              >
+                <Text style={styles.promoButtonText}>
+                  Застосувати
+                </Text>
+              </TouchableOpacity>
+
+            </View>
+
+            <View style={styles.summaryDivider} />
+
+
+            <Text style={styles.summaryTitle}>
+              Підсумок замовлення
+            </Text>
+
+            <View style={styles.summaryRow}>
+
+              <Text style={styles.summaryLabel}>
+                Сума товарів
+              </Text>
+
+              <Text style={styles.summaryValue}>
+                {cartTotal} грн
+              </Text>
+
+            </View>
+
+            <View style={styles.summaryRow}>
+
+              <Text style={styles.summaryLabel}>
+                Доставка
+              </Text>
+
+              <Text style={styles.summaryValue}>
+                0 грн
+              </Text>
+
+            </View>
+
+
+            <View style={styles.summaryDivider} />
+
+
+            <View style={styles.summaryTotalRow}>
+
+              <Text style={styles.summaryTotalText}>
+                Разом
+              </Text>
+
+              <Text style={styles.summaryTotalPrice}>
+                {cartTotal} грн
+              </Text>
+
+            </View>
+
+
+            <TouchableOpacity
+              style={[
+                styles.checkoutButton,
+                cartProducts.length === 0 &&
+                  styles.checkoutButtonDisabled,
+              ]}
+              disabled={cartProducts.length === 0}
+              onPress={() => {
+                console.log("Оформлення замовлення");
+              }}
+            >
+              <Text style={styles.checkoutButtonText}>
+                Оформити замовлення
+              </Text>
+
+              <Ionicons
+                name="arrow-forward"
+                size={18}
+                color="#FFFFFF"
+              />
+            </TouchableOpacity>
+
+          </View>
+
+        </View>
+
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
 }
 
 const styles = StyleSheet.create({
@@ -1262,6 +1509,320 @@ favouriteBannerText: {
     fontWeight: "600",
     marginLeft: 4,
   },
+  cartHeader: {
+  height: 56,
+  backgroundColor: "#21252B",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingHorizontal: 16,
+},
+
+cartBackButton: {
+  width: 42,
+  height: 42,
+  borderRadius: 21,
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+cartHeaderTitle: {
+  color: "#FFFFFF",
+  fontSize: 18,
+  fontWeight: "bold",
+},
+
+cartContainer: {
+  padding: 20,
+  paddingBottom: 40,
+},
+
+cartContainerMobile: {
+  padding: 12,
+},
+
+cartLayout: {
+  flexDirection: "row",
+  alignItems: "flex-start",
+  gap: 20,
+},
+
+cartLayoutMobile: {
+  flexDirection: "column",
+},
+
+cartProductsSection: {
+  flex: 1,
+  backgroundColor: "#FFFFFF",
+  borderRadius: 14,
+  padding: 16,
+},
+
+cartProductsSectionMobile: {
+  width: "100%",
+},
+
+cartSectionHeader: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginBottom: 12,
+},
+
+cartSectionTitle: {
+  fontSize: 18,
+  fontWeight: "bold",
+  color: "#212121",
+},
+
+cartProductCount: {
+  fontSize: 14,
+  color: "#757575",
+  marginLeft: 5,
+},
+
+/* Товар */
+
+cartProduct: {
+  minHeight: 90,
+  flexDirection: "row",
+  alignItems: "center",
+  borderBottomWidth: 1,
+  borderBottomColor: "#EEEEEE",
+  paddingVertical: 10,
+},
+
+cartImageContainer: {
+  width: 70,
+  height: 70,
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "#F8F8F8",
+  borderRadius: 10,
+},
+
+cartProductImage: {
+  width: 60,
+  height: 60,
+},
+
+cartProductInfo: {
+  flex: 1,
+  marginLeft: 12,
+},
+
+cartProductTitle: {
+  fontSize: 14,
+  fontWeight: "600",
+  color: "#212121",
+},
+
+cartProductPrice: {
+  fontSize: 14,
+  fontWeight: "bold",
+  color: "#212121",
+  marginTop: 5,
+},
+
+cartProductUnit: {
+  fontSize: 11,
+  fontWeight: "normal",
+  color: "#757575",
+},
+
+/* Счетчик */
+
+cartCounter: {
+  height: 36,
+  minWidth: 88,
+  backgroundColor: "#E8F5E9",
+  borderRadius: 10,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingHorizontal: 4,
+},
+
+cartCounterButton: {
+  width: 28,
+  height: 28,
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+cartMinus: {
+  fontSize: 20,
+  color: "#777777",
+},
+
+cartPlus: {
+  fontSize: 20,
+  color: "#2E7D32",
+  fontWeight: "bold",
+},
+
+cartQuantity: {
+  fontSize: 14,
+  fontWeight: "bold",
+  color: "#212121",
+},
+
+cartItemTotal: {
+  width: 80,
+  textAlign: "right",
+  fontSize: 13,
+  fontWeight: "bold",
+  color: "#212121",
+  marginLeft: 10,
+},
+
+cartDeleteButton: {
+  width: 36,
+  height: 36,
+  borderRadius: 18,
+  backgroundColor: "#FFEBEE",
+  justifyContent: "center",
+  alignItems: "center",
+  marginLeft: 8,
+},
+
+/* Пустая корзина */
+
+cartEmpty: {
+  minHeight: 250,
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+cartEmptyTitle: {
+  fontSize: 18,
+  fontWeight: "bold",
+  color: "#424242",
+  marginTop: 12,
+},
+
+cartEmptyText: {
+  fontSize: 13,
+  color: "#9E9E9E",
+  marginTop: 5,
+  textAlign: "center",
+},
+
+/* Правая панель */
+
+cartSummary: {
+  width: 300,
+  backgroundColor: "#E8F5E9",
+  borderRadius: 14,
+  padding: 18,
+},
+
+cartSummaryMobile: {
+  width: "100%",
+},
+
+summaryTitle: {
+  fontSize: 15,
+  fontWeight: "bold",
+  color: "#212121",
+  marginBottom: 10,
+},
+
+/* Промокод */
+
+promoContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+},
+
+promoInput: {
+  flex: 1,
+  height: 40,
+  backgroundColor: "#FFFFFF",
+  borderRadius: 8,
+  paddingHorizontal: 10,
+  fontSize: 12,
+  color: "#212121",
+  borderWidth: 1,
+  borderColor: "#D5E5D7",
+},
+
+promoButton: {
+  height: 40,
+  paddingHorizontal: 12,
+  marginLeft: 6,
+  borderRadius: 8,
+  backgroundColor: "#2E7D32",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+promoButtonText: {
+  color: "#FFFFFF",
+  fontSize: 11,
+  fontWeight: "bold",
+},
+
+summaryDivider: {
+  height: 1,
+  backgroundColor: "#C8DCCB",
+  marginVertical: 16,
+},
+
+summaryRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginBottom: 9,
+},
+
+summaryLabel: {
+  fontSize: 13,
+  color: "#616161",
+},
+
+summaryValue: {
+  fontSize: 13,
+  color: "#212121",
+  fontWeight: "600",
+},
+
+summaryTotalRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 15,
+},
+
+summaryTotalText: {
+  fontSize: 18,
+  fontWeight: "bold",
+  color: "#212121",
+},
+
+summaryTotalPrice: {
+  fontSize: 18,
+  fontWeight: "bold",
+  color: "#1B5E20",
+},
+
+checkoutButton: {
+  height: 44,
+  backgroundColor: "#2E7D32",
+  borderRadius: 10,
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+checkoutButtonDisabled: {
+  backgroundColor: "#A5A5A5",
+},
+
+checkoutButtonText: {
+  color: "#FFFFFF",
+  fontSize: 13,
+  fontWeight: "bold",
+  marginRight: 6,
+},
 });
 
  

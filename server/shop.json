@@ -268,6 +268,26 @@
       "productId": "p3",
       "quantity": 1,
       "id": "tEdi3HlJ91U"
+    },
+    {
+      "productId": "p2",
+      "quantity": 1,
+      "id": "uRXNfh_mrow"
+    },
+    {
+      "productId": "p1",
+      "quantity": 1,
+      "id": "CW1boGtdQtY"
+    },
+    {
+      "productId": "p1",
+      "quantity": 1,
+      "id": "uvKx2vGnwa4"
+    },
+    {
+      "productId": "p1",
+      "quantity": -1,
+      "id": "gpRujiVbiU4"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
