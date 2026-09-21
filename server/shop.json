@@ -288,6 +288,16 @@
       "productId": "p1",
       "quantity": -1,
       "id": "gpRujiVbiU4"
+    },
+    {
+      "productId": "p3",
+      "quantity": 1,
+      "id": "zMgS4y4ZdhM"
+    },
+    {
+      "productId": "p3",
+      "quantity": 1,
+      "id": "kon-ATqirEk"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

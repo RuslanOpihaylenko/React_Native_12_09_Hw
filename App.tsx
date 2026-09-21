@@ -8,12 +8,13 @@ import { LayoutExample } from "./src/ui/LayoutExample";
 import CategoryScreen from "./src/screens/CategoryScreen";
 import HomeScreen from "./src/screens/HomeSreen";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-
+import ProductScreen from "./src/screens/ProductScreen";
 export default function App() {
   return (
 //<CategoryScreen></CategoryScreen> 
 <SafeAreaProvider>
-  <HomeScreen/>
+  {/* <HomeScreen/> */}
+  <ProductScreen/>
 </SafeAreaProvider>
     // <LayoutExample />
     // <View style={styles.container}>
