@@ -3,7 +3,7 @@
     "name": "rn_ts_project",
     "slug": "rn_ts_project",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {

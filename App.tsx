@@ -7,10 +7,14 @@ import { MyKeyboard } from "./src/ui/MyKeybord";
 import { LayoutExample } from "./src/ui/LayoutExample";
 import CategoryScreen from "./src/screens/CategoryScreen";
 import HomeScreen from "./src/screens/HomeSreen";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
 export default function App() {
   return (
 //<CategoryScreen></CategoryScreen> 
-<HomeScreen/>
+<SafeAreaProvider>
+  <HomeScreen/>
+</SafeAreaProvider>
     // <LayoutExample />
     // <View style={styles.container}>
     //   <ImageBackground

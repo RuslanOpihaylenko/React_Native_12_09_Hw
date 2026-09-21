@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useWindowDimensions } from "react-native";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -37,6 +38,14 @@ interface Product {
 }
 
 export default function HomeScreen() {
+  const { width } = useWindowDimensions();
+  const productCardWidth = 
+    width < 800 
+      ? "48%"
+      : width > 1000
+        ? "23%"
+        : "23%";
+  
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
@@ -48,7 +57,9 @@ export default function HomeScreen() {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [favoriteBtn, setFavoriteBtn] = useState<Record<string, boolean>>({});
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "А-Я"| "Я-А" | null>(null);
-
+  const [openPage, setOpenPage] = useState<boolean>(false);
+  const [openBasket, setOpenBasket] = useState<boolean>(false);
+  const [cartQuantities, setCartQuantities] = useState<Record<string, number>>({});
   useEffect(() => {
     fetchData();
   }, []);
@@ -110,6 +121,10 @@ export default function HomeScreen() {
   return result;
   }, [products, selectedCategoryId, searchQuery, sortOrder]);
 
+  const favoriteProducts = useMemo(() => {
+  return products.filter((product) => favoriteBtn[product.id]);
+}, [products, favoriteBtn]);
+
   const theme = {
     bg: isDarkMode ? "#121212" : "#FFFFFF",
     cardBg: isDarkMode ? "#1E1E1E" : "#FAFAFA",
@@ -121,6 +136,63 @@ export default function HomeScreen() {
     bannerTitle: isDarkMode ? "#A5D6A7" : "#1B5E20",
     bannerSubtitle: isDarkMode ? "#81C784" : "#4CAF50",
   };
+
+  const handleOnClickLess = (productId: string) => {
+  setCartQuantities((prev) => ({
+    ...prev,
+    [productId]: Math.max((prev[productId] || 0) - 1, 0),
+  }));
+};
+
+const handleOnClickMore = (productId: string) => {
+  setCartQuantities((prev) => ({
+    ...prev,
+    [productId]: (prev[productId] || 0) + 1,
+  }));
+};
+
+const handleResetCounter = (productId: string) => {
+  setCartQuantities((prev) => ({
+    ...prev,
+    [productId]: 0,
+  }));
+};
+const updateCart = async (productId: string, quantityChange: number) => {
+  try {
+    const currentQuantity = cartQuantities[productId] || 0;
+
+    // Не дозволяємо піти нижче 0
+    if (currentQuantity + quantityChange < 0) {
+      return;
+    }
+
+    const payload = {
+      productId,
+      quantity: quantityChange,
+    };
+
+    console.log("PAYLOAD:", payload);
+
+    const response = await fetch(`${API_BASE_URL}/cart`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error("Не вдалося оновити кошик");
+    }
+
+    setCartQuantities((prev) => ({
+      ...prev,
+      [productId]: currentQuantity + quantityChange,
+    }));
+  } catch (error) {
+    console.error("Помилка кошика:", error);
+  }
+};
 
   if (loading) {
     return (
@@ -149,7 +221,8 @@ export default function HomeScreen() {
     );
   }
 
-  return (
+  if(openPage === false && openBasket === false){ return (
+  
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bg }]}>
       <StatusBar
         barStyle={isDarkMode ? "light-content" : "dark-content"}
@@ -373,6 +446,8 @@ export default function HomeScreen() {
             <TouchableOpacity style={styles.filterBtn} onPress={()=> setSortOrder("asc")}><Text>Самые дешёвые</Text></TouchableOpacity>
             <TouchableOpacity style={styles.filterBtn} onPress={()=> setSortOrder("А-Я")}><Text>От А до Я</Text></TouchableOpacity>
             <TouchableOpacity style={styles.filterBtn} onPress={()=> setSortOrder("Я-А")}><Text>От Я до А</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.filterBtn} onPress={() => setOpenPage(true)}><Text>Обране</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.filterBtn} onPress={() => setOpenBasket(true)}><Text>Кошик</Text></TouchableOpacity>
         </View>
 
         {filteredProducts.length === 0 ? (
@@ -393,7 +468,7 @@ export default function HomeScreen() {
                 key={product.id}
                 style={[
                   styles.productCard,
-                  { backgroundColor: theme.cardBg, borderColor: theme.border },
+                  {width: productCardWidth, backgroundColor: theme.cardBg, borderColor: theme.border },
                 ]}
               >
                 <TouchableOpacity style={styles.favoriteButton} onPress={()=>setFavoriteBtn((prev)=>({
@@ -454,10 +529,411 @@ export default function HomeScreen() {
         )}
       </ScrollView>
     </SafeAreaView>
+  );}
+  else if (openPage === true) {
+  return (
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        { backgroundColor: theme.bg }
+      ]}
+    >
+      <StatusBar
+        barStyle={isDarkMode ? "light-content" : "dark-content"}
+        backgroundColor={theme.bg}
+      />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.container}
+      >
+
+        <View style={styles.favouriteHeader}>
+
+          <TouchableOpacity
+            style={[
+              styles.favouriteBackButton,
+              { backgroundColor: theme.inputBg }
+            ]}
+            onPress={() => setOpenPage(false)}
+          >
+            <Ionicons
+              name="arrow-back"
+              size={22}
+              color={theme.textPrimary}
+            />
+          </TouchableOpacity>
+
+          <View style={styles.favouriteTitleContainer}>
+            <Text
+              style={[
+                styles.favouriteTitle,
+                { color: theme.textPrimary }
+              ]}
+            >
+              Обране ❤️
+            </Text>
+
+            <Text
+              style={[
+                styles.favouriteSubtitle,
+                { color: theme.textSecondary }
+              ]}
+            >
+              Товари, які ви зберегли
+            </Text>
+          </View>
+
+        </View>
+
+        {/* Зеленый информационный блок */}
+        <View style={styles.favouriteBanner}>
+
+          <View style={styles.favouriteBannerIcon}>
+            <Ionicons
+              name="heart"
+              size={24}
+              color="#E53935"
+            />
+          </View>
+
+          <View style={{ flex: 1 }}>
+            <Text style={styles.favouriteBannerTitle}>
+              У вас {favoriteProducts.length} улюблених товарів
+            </Text>
+
+            <Text style={styles.favouriteBannerText}>
+              Зберігайте те, що вам сподобалось
+            </Text>
+          </View>
+
+          <Ionicons
+            name="heart"
+            size={38}
+            color="#E53935"
+          />
+
+        </View>
+
+        <View style={styles.sectionHeader}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: theme.textPrimary }
+            ]}
+          >
+            Мої улюблені
+          </Text>
+
+          <Text
+            style={[
+              styles.countText,
+              { color: theme.textSecondary }
+            ]}
+          >
+            ({favoriteProducts.length})
+          </Text>
+        </View>
+
+        {favoriteProducts.length === 0 ? (
+
+          <View style={styles.emptyContainer}>
+
+            <Ionicons
+              name="heart-outline"
+              size={60}
+              color={theme.textSecondary}
+            />
+
+            <Text
+              style={[
+                styles.emptyText,
+                { color: theme.textSecondary }
+              ]}
+            >
+              Ви ще не додали жодного товару в обране
+            </Text>
+
+          </View>
+
+        ) : (
+
+          <View style={styles.productsGrid}>
+
+            {favoriteProducts.map((product) => (
+
+              <View
+                key={product.id}
+                style={[
+                  styles.productCard,
+                  {
+                    width: productCardWidth,
+                    backgroundColor: theme.cardBg,
+                    borderColor: theme.border,
+                  },
+                ]}
+              >
+
+                <TouchableOpacity
+                  style={styles.favoriteButton}
+                  onPress={() =>
+                    setFavoriteBtn((prev) => ({
+                      ...prev,
+                      [product.id]: !prev[product.id],
+                    }))
+                  }
+                >
+                  <Ionicons
+                    name="heart"
+                    size={20}
+                    color="#E53935"
+                  />
+                </TouchableOpacity>
+
+                <Image
+                  source={{ uri: product.image }}
+                  style={styles.productImage}
+                  resizeMode="contain"
+                />
+
+                <Text
+                  style={[
+                    styles.productTitle,
+                    { color: theme.textPrimary }
+                  ]}
+                  numberOfLines={1}
+                >
+                  {product.title}
+                </Text>
+
+                <Text
+                  style={[
+                    styles.productPrice,
+                    { color: theme.textPrimary }
+                  ]}
+                >
+                  {product.price}{" "}
+
+                  <Text
+                    style={[
+                      styles.productUnit,
+                      { color: theme.textSecondary }
+                    ]}
+                  >
+                    {product.unit}
+                  </Text>
+                </Text>
+
+                <View style={styles.productFooter}>
+
+                  <View style={styles.ratingContainer}>
+
+                    <Ionicons
+                      name="star"
+                      size={14}
+                      color="#FFB300"
+                    />
+
+                    <Text
+                      style={[
+                        styles.ratingText,
+                        { color: theme.textPrimary }
+                      ]}
+                    >
+                      {product.rating}
+
+                      <Text style={styles.reviewsText}>
+                        {" "}({product.reviews})
+                      </Text>
+                    </Text>
+
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => handleOnClickMore(product.id)}
+                  >
+                    <Ionicons
+                      name="cart-outline"
+                      size={16}
+                      color="#FFFFFF"
+                    />
+
+                    <Text style={styles.addButtonText}>
+                      Додати
+                    </Text>
+                  </TouchableOpacity>
+
+                </View>
+
+              </View>
+
+            ))}
+
+          </View>
+
+        )}
+
+      </ScrollView>
+    </SafeAreaView>
   );
+}
+  else {
+    return(
+      <View>
+        <TouchableOpacity style={styles.Favouritebackbtn} onPress={()=>setOpenBasket(false)}><Text>←</Text></TouchableOpacity>
+        {filteredProducts.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Ionicons
+              name="basket-outline"
+              size={48}
+              color={theme.textSecondary}
+            />
+            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+              Товарів у цій категорії поки немає
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.productsGrid}>
+            {filteredProducts.map((product) => (
+              <View
+                key={product.id}
+                style={[
+                  styles.productCard,
+                  { width: productCardWidth, backgroundColor: theme.cardBg, borderColor: theme.border },
+                ]}
+              >
+                <TouchableOpacity style={styles.favoriteButton} onPress={()=>setFavoriteBtn((prev)=>({
+                    ...prev,
+                    [product.id]: !prev[product.id],
+                }))}>
+                  <Ionicons
+                    name={favoriteBtn[product.id] ? "heart" : "heart-outline"}
+                    size={20}
+                    color={favoriteBtn[product.id] ? "#E53935" : "#BDBDBD"}
+                  />
+                </TouchableOpacity>
+
+                <Image
+                  source={{ uri: product.image }}
+                  style={styles.productImage}
+                  resizeMode="contain"
+                />
+
+                <Text
+                  style={[styles.productTitle, { color: theme.textPrimary }]}
+                  numberOfLines={1}
+                >
+                  {product.title}
+                </Text>
+                <View style={styles.productFooter}>
+                <Text
+                  style={[styles.productPrice, { color: theme.textPrimary }]}
+                >
+                  {product.price}{" "}
+                  <Text
+                    style={[styles.productUnit, { color: theme.textSecondary }]}
+                  >
+                    {product.unit}
+                  </Text>
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleResetCounter(product.id)}
+                  style={styles.resetButton}>
+                    <Ionicons name="refresh-outline" size={18} color="#D32F2F" />
+                </TouchableOpacity>
+                <View style={styles.counter}>
+                  <TouchableOpacity   onPress={() => updateCart(product.id, -1)} style={styles.less}><Text style={{color: "#717171", fontSize: 20}}>-</Text></TouchableOpacity>
+                  <Text style={styles.value}>{cartQuantities[product.id] || 0}</Text>
+                  <TouchableOpacity onPress={() => updateCart(product.id, 1)} style={styles.more}><Text style={{color: "green", fontSize: 20}}>+</Text></TouchableOpacity>
+                </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
+  favouriteHeader: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginTop: 12,
+  marginBottom: 20,
+},
+
+favouriteBackButton: {
+  width: 42,
+  height: 42,
+  borderRadius: 21,
+  justifyContent: "center",
+  alignItems: "center",
+  marginRight: 12,
+},
+
+favouriteTitleContainer: {
+  flex: 1,
+},
+
+favouriteTitle: {
+  fontSize: 20,
+  fontWeight: "bold",
+},
+
+favouriteSubtitle: {
+  fontSize: 12,
+  marginTop: 2,
+},
+
+favouriteBanner: {
+  minHeight: 72,
+  backgroundColor: "#E8F5E9",
+  borderRadius: 16,
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  flexDirection: "row",
+  alignItems: "center",
+  marginBottom: 24,
+},
+
+favouriteBannerIcon: {
+  width: 44,
+  height: 44,
+  borderRadius: 22,
+  backgroundColor: "#FFFFFF",
+  justifyContent: "center",
+  alignItems: "center",
+  marginRight: 10,
+},
+
+favouriteBannerTitle: {
+  fontSize: 13,
+  fontWeight: "bold",
+  color: "#1B5E20",
+},
+
+favouriteBannerText: {
+  fontSize: 10,
+  color: "#4CAF50",
+  marginTop: 3,
+},
+  resetButton: {
+  width: 36,
+  height: 36,
+  borderRadius: 18,
+  backgroundColor: "#FFEBEE",
+  justifyContent: "center",
+  alignItems: "center",
+  marginLeft: 8,
+},
+  Favouritebackbtn:{
+    height: 50,
+    width: 50,
+    backgroundColor: "green"
+  },
   safeArea: {
     flex: 1,
   },
@@ -566,11 +1042,10 @@ const styles = StyleSheet.create({
     width:390,
     display: "flex",
     flexDirection: "row",
-    justifyContent: "center"
   },
   filterBtn:{
-    height: 50,
-    width: 70,
+    height: "100%",
+    width: "20%",
     backgroundColor: "lightgreen",
     borderRadius: 13,
     marginLeft: 10,
@@ -699,7 +1174,6 @@ const styles = StyleSheet.create({
     rowGap: 16,
   },
   productCard: {
-    width: "48%",
     borderRadius: 16,
     padding: 12,
     position: "relative",
@@ -735,6 +1209,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: 4,
+  },
+  counter:{
+    height: "100%",
+    width: "30%",
+    backgroundColor: "#DDDDDD",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderRadius: 13
+  },
+  less: {
+    height: "100%",
+    width: "25%",
+    marginLeft: "10%"
+  },
+  value: {
+    height: "100%",
+    width: "25%",
+   fontSize: 20
+  },
+  more:{
+    height: "100%",
+    width: "25%",
   },
   ratingContainer: {
     flexDirection: "row",

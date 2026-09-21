@@ -217,7 +217,58 @@
       "reviews": 49,
       "image": "https://cdn-icons-png.flaticon.com/512/2935/2935307.png"
     }
-  ]
+  ],
+  "cart": [
+    {
+      "id": "cart_p1",
+      "productId": "p1",
+      "quantity": 3
+    },
+    {
+      "productId": "p5",
+      "quantity": 1,
+      "id": "DkHlV6YkTL4"
+    },
+    {
+      "productId": "p5",
+      "quantity": 1,
+      "id": "21iVkUfCYcQ"
+    },
+    {
+      "productId": "p5",
+      "quantity": -1,
+      "id": "fCdn1JQZ0TI"
+    },
+    {
+      "productId": "p5",
+      "quantity": -1,
+      "id": "jRaK3cuAKMk"
+    },
+    {
+      "productId": "p3",
+      "quantity": 1,
+      "id": "7PFwvH0PDGU"
+    },
+    {
+      "productId": "p3",
+      "quantity": 1,
+      "id": "IafYUFHMb4w"
+    },
+    {
+      "productId": "p3",
+      "quantity": -1,
+      "id": "oOZetyaCpmE"
+    },
+    {
+      "productId": "p3",
+      "quantity": -1,
+      "id": "ey_qzFHJAyA"
+    },
+    {
+      "productId": "p3",
+      "quantity": 1,
+      "id": "tEdi3HlJ91U"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
- 
- 
